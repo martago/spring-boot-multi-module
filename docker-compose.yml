@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  app:
+    image: application
+    container_name: springBootMultiApp
+    depends_on:
+      - postgresDb
+    build: ./
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_JSON: '{
+                "spring.datasource.url"  : "jdbc:postgresql://postgresDb:5432/app",
+                "spring.datasource.username" : "admin",
+                "spring.datasource.password" : "admin",
+                "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.PostgreSQLDialect",
+                "hibernate.connection.driver_class": "org.postgresql.Driver",
+                "spring.jpa.hibernate.ddl-auto" : "none",
+                "spring.flyway.url" : "jdbc:postgresql://postgresDb:5432/app",
+                "spring.flyway.schemas" : "app",
+                "spring.flyway.user" : "admin",
+                "spring.flyway.password" : "admin"
+              }'
+
+  postgresDb:
+    image: 'postgres:15.0-alpine'
+    container_name: postgresDb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=app
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
